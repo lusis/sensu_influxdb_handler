@@ -47,6 +47,7 @@ Host, port, user, password and database are pretty straight forward. `strip_metr
 	something.host.metrictype.foo.bar
 
 or
+
 	host.stats.something.foo.bar
 
 Really the pattern is irrelevant. People have different tastes. Adding much of that data to the column name in InfluxDB is rather silly so `strip_metric` provides you with a chance to add a value that strips off everything up to (and including that value). This allows you to continue sending to graphite or statsd or whatever and still use this handler.
