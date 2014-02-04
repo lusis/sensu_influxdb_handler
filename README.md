@@ -16,19 +16,24 @@ The value for `metric` is determined based on the value of `strip_metric` descri
 
 ![an image](http://s3itch.lusis.org/InfluxDB_Administration_20140203_153132.png)
 
-## Handler definition (`/etc/sensu/conf.d/handlers/influx.json`)
+## Extension not a handler
+Note that the first push of this was a handler that could be called via `pipe`. This is now an actual extension that's more performant since it's actually in the sensu-server runtime. Additionally it's now using batch submission to InfluxDB by writing all the points for a given series at once.
+
+Just drop the file in `/etc/sensu/extensions` and add it to your `metrics` configuration (`/etc/sensu/conf.d/handlers/metrics.json`:
+
 ```json
 {
   "handlers": {
-    "influx": {
-      "type": "pipe",
-      "command": "influx.rb"
+    "metrics": {
+      "type": "set",
+      "handlers": [ "debug", "influx"]
     }
   }
 }
 ```
 
 ## Handler config (`/etc/sensu/conf.d/influx.json`)
+
 ```json
 {
   "influx": {
@@ -60,8 +65,8 @@ Note that `strip_metric` isn't required.
 ```ruby
 sensu_gem "influxdb"
 
-cookbook_file "/etc/sensu/handlers/influx.rb" do
-  source "handlers/influx.rb"
+cookbook_file "/etc/sensu/extensions/influx.rb" do
+  source "extensions/influx.rb"
   mode 0755
 end
 
@@ -74,10 +79,5 @@ sensu_snippet "influx" do
     :database => 'stats',
     :strip_metric => node.name
   )
-end
-
-sensu_handler "influx" do
-  type "pipe"
-  command "influx.rb"
 end
 ```
