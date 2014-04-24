@@ -36,6 +36,7 @@ module Sensu::Extension
         output.split(/\n/).each do |line|
           @logger.debug("Parsing line: #{line}")
 	  k,v,t = line.split(/\s+/)
+          v = v.match('\.').nil? ? Integer(v) : Float(v) rescue v.to_s
           k.gsub!(/^.*#{@settings['influx']['strip_metric']}\.(.*$)/, '\1') if @settings['influx']['strip_metric']
           points << {:time => t.to_f, :host => host, :metric => k, :value => v}
         end
