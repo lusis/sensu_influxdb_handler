@@ -21,7 +21,7 @@ module Sensu::Extension
 
     def run(event)
       begin
-        event = Oj.load(event)
+        event = MultiJson.load(event)
         host = event[:client][:name]
         series = event[:check][:name]
         timestamp = event[:check][:issued]
