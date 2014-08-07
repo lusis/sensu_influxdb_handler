@@ -1,6 +1,7 @@
 require 'rubygems' if RUBY_VERSION < '1.9.0'
 require 'influxdb'
 require 'timeout'
+require 'json'
 
 module Sensu::Extension
 
@@ -21,12 +22,12 @@ module Sensu::Extension
 
     def run(event)
       begin
-        event = Oj.load(event)
-        host = event[:client][:name]
-        series = event[:check][:name]
-        timestamp = event[:check][:issued]
-        duration = event[:check][:duration]
-        output = event[:check][:output]
+        event = JSON.parse(event)
+        host = event['client']['name']
+        series = event['check']['name']
+        timestamp = event['check']['issued']
+        duration = event['check']['duration']
+        output = event['check']['output']
       rescue => e
         @logger.error("InfluxDB: Error setting up event object - #{e.backtrace.to_s}")
       end
