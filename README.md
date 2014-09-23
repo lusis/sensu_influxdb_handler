@@ -2,7 +2,7 @@
 `influxdb` ruby gem
 
 # Usage
-The configuration options are pretty straight forward. Note that the files are called `influx` not `influxdb`. 
+The configuration options are pretty straight forward.
 
 Metrics are inserted into the database with a table per check name. So if you're using the `rabbitmq_overview_metrics` plugin, you'd have a table in the defined database called `rabbitmq_overview_metrics` with the following columns:
 
@@ -26,17 +26,17 @@ Just drop the file in `/etc/sensu/extensions` and add it to your `metrics` confi
   "handlers": {
     "metrics": {
       "type": "set",
-      "handlers": [ "debug", "influx"]
+      "handlers": [ "debug", "influxdb"]
     }
   }
 }
 ```
 
-## Handler config (`/etc/sensu/conf.d/influx.json`)
+## Handler config (`/etc/sensu/conf.d/influxdb.json`)
 
 ```json
 {
-  "influx": {
+  "influxdb": {
     "host": "localhost",
     "port": "8086",
     "user": "stats",
@@ -60,24 +60,3 @@ Really the pattern is irrelevant. People have different tastes. Adding much of t
 Using the examples above, if you set the `strip_metric` to `host`, then the column in InfluxDB would be called `metrictype.foo.bar` or `stats.something.foo.bar`. If you set the value to `foo` then the column would simply be called `foo`
 
 Note that `strip_metric` isn't required.
-# Quickstart (for Chef sensu cookbook users)
-
-```ruby
-sensu_gem "influxdb"
-
-cookbook_file "/etc/sensu/extensions/influx.rb" do
-  source "extensions/influx.rb"
-  mode 0755
-end
-
-sensu_snippet "influx" do
-  content(
-    :host => node['sensu']['rabbitmq']['host'],
-    :port => '8086',
-    :user => 'stats',
-    :password => 'stats',
-    :database => 'stats',
-    :strip_metric => node.name
-  )
-end
-```
