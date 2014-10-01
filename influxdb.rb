@@ -65,9 +65,9 @@ module Sensu::Extension
           data = {
             "duration" => event["check"]["duration"],
             "host" => event["client"]["name"],
-            "output" => event["check"]["output"]
+            "output" => event["check"]["output"],
             "series" => event["check"]["name"],
-            "timestamp" => event["check"]["issued"],
+            "timestamp" => event["check"]["issued"]
           }
         rescue => e
           puts "Failed to parse event data"
