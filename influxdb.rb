@@ -9,6 +9,13 @@ module Sensu::Extension
       "InfluxDB"
     end
 
+    def definition
+      {
+        type: "extension",
+        name: "influxdb"
+      }
+    end
+
     def description
       "Outputs metrics to InfluxDB"
     end
