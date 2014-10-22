@@ -6,7 +6,7 @@ require "json"
 module Sensu::Extension
   class InfluxDB < Handler
     def name
-      "InfluxDB"
+      definition[:name]
     end
 
     def definition
