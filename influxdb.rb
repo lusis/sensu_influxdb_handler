@@ -61,10 +61,6 @@ module Sensu::Extension
       end
     end
 
-    def stop
-      yield("InfluxDB: Handler finished", 0)
-    end
-
     private
       def parse_event(event_data)
         begin
