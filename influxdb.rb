@@ -47,18 +47,7 @@ module Sensu::Extension
 
       settings = parse_settings()
 
-      EventMachine.run do
-        http = EventMachine::HttpRequest.new("http://#{ settings["host"] }:#{ settings["port"] }/db/#{ settings["database"] }/series?u=root&p=root").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
-
-        http.errback do
-          puts "HTTP request failed"
-          EventMachine.stop
-        end
-
-        http.callback do
-          EventMachine.stop
-        end
-      end
+      EventMachine::HttpRequest.new("http://#{ settings["host"] }:#{ settings["port"] }/db/#{ settings["database"] }/series?u=root&p=root").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
     end
 
     private
