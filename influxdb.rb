@@ -75,6 +75,7 @@ module Sensu::Extension
             "port" => @settings["influxdb"]["port"],
             "strip_metric" => @settings["influxdb"]["strip_metric"],
             "timeout" => @settings["influxdb"]["timeout"]
+            "user" => @settings["influxdb"]["user"],
           }
         rescue => e
           puts "Failed to parse InfluxDB settings"
