@@ -47,7 +47,7 @@ module Sensu::Extension
 
       settings = parse_settings()
 
-      EventMachine::HttpRequest.new("http://#{ settings["host"] }:#{ settings["port"] }/db/#{ settings["database"] }/series?u=root&p=root").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
+      EventMachine::HttpRequest.new("http://#{ settings["host"] }:#{ settings["port"] }/db/#{ settings["database"] }/series?u=#{ settings["user"] }&p=#{ settings["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
     end
 
     private
@@ -71,6 +71,7 @@ module Sensu::Extension
           settings = {
             "database" => @settings["influxdb"]["database"],
             "host" => @settings["influxdb"]["host"],
+            "password" => @settings["influxdb"]["password"],
             "port" => @settings["influxdb"]["port"],
             "strip_metric" => @settings["influxdb"]["strip_metric"],
             "timeout" => @settings["influxdb"]["timeout"]
