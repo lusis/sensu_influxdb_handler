@@ -30,8 +30,13 @@ module Sensu::Extension
 
       data["output"].split(/\n/).each do |line|
         key, value, time = line.split(/\s+/)
+        puts @settings["influxdb"]["strip_metric"]
+        puts key
 
-        if @settings["influxdb"]["strip_metric"]
+        if @settings["influxdb"]["strip_metric"] == "host"
+          key = slice_common_prefix(key, data["host"])
+        elsif @settings["influxdb"]["strip_metric"]
+
           key.gsub!(/^.*#{@settings['influxdb']['strip_metric']}\.(.*$)/, '\1')
         end
 
@@ -81,6 +86,16 @@ module Sensu::Extension
           puts "Failed to parse InfluxDB settings"
         end
         return settings
+      end
+
+      def slice_common_prefix(slice, prefix)
+        prefix.chars().zip(slice.chars()).each do | char1, char2 |
+          if char1 != char2
+            break
+          end
+          slice.slice!(char1)
+        end
+        return slice
       end
   end
 end
