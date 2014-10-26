@@ -30,8 +30,6 @@ module Sensu::Extension
 
       data["output"].split(/\n/).each do |line|
         key, value, time = line.split(/\s+/)
-        puts @settings["influxdb"]["strip_metric"]
-        puts key
 
         if @settings["influxdb"]["strip_metric"] == "host"
           key = slice_common_prefix(key, data["host"])
