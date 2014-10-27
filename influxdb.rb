@@ -32,9 +32,8 @@ module Sensu::Extension
         key, value, time = line.split(/\s+/)
 
         if @settings["influxdb"]["strip_metric"] == "host"
-          key = slice_common_prefix(key, data["host"])
+          key = slice_host(key, data["host"])
         elsif @settings["influxdb"]["strip_metric"]
-
           key.gsub!(/^.*#{@settings['influxdb']['strip_metric']}\.(.*$)/, '\1')
         end
 
@@ -86,9 +85,9 @@ module Sensu::Extension
         return settings
       end
 
-      def slice_common_prefix(slice, prefix)
+      def slice_host(slice, prefix)
         prefix.chars().zip(slice.chars()).each do | char1, char2 |
-          if char1 != char2
+          if char1 != char2 and char1 != "."
             break
           end
           slice.slice!(char1)
