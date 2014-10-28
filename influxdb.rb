@@ -87,9 +87,9 @@ module Sensu::Extension
 
       def slice_host(slice, prefix)
         prefix.chars().zip(slice.chars()).each do | char1, char2 |
-          if char1 != char2 and char1 != "."
-            break
-          end
+          slice.slice!(char1)
+        end
+        if slice.chars.first == "."
           slice.slice!(char1)
         end
         return slice
