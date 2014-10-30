@@ -7,8 +7,27 @@ The configuration options are pretty straight forward.
 Metrics are inserted into the database with a table per check name. So if you're using the `rabbitmq_overview_metrics` plugin, you'd have a table in the defined database called `rabbitmq_overview_metrics` with the following columns:
 
 - host
-- metric
-- value
+- metric.name1
+- metric.name2
+
+Eg with the [load-metrics.rb](https://github.com/sensu/sensu-community-plugins/blob/master/plugins/system/load-metrics.rb) the following series would be generated:
+
+```
+┌────────────┬─────────────────┬────────────────────────────────────────┬──────────────┬───────────────┬──────────────────┐
+│ time       │ sequence_number │ host                                   │ load_avg.one │ load_avg.five │ load_avg.fifteen │
+├────────────┼─────────────────┼────────────────────────────────────────┼──────────────┼───────────────┼──────────────────┤
+│ 1414548271 │ 209090001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.89          │ 0.53             │
+│ 1414548261 │ 209080001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.89          │ 0.52             │
+│ 1414548251 │ 209070001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.88          │ 0.52             │
+│ 1414548241 │ 209060001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.88          │ 0.51             │
+│ 1414548231 │ 209050001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.87          │ 0.51             │
+│ 1414548221 │ 209040001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.87          │ 0.50             │
+│ 1414548211 │ 209030001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.87          │ 0.50             │
+│ 1414548201 │ 209020001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.86          │ 0.49             │
+│ 1414548191 │ 209010001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.86          │ 0.49             │
+│ 1414548181 │ 209000001       │ default-ubuntu-1404-i386.vagrantup.com │ 1.00         │ 0.85          │ 0.48             │
+└────────────┴─────────────────┴────────────────────────────────────────┴──────────────┴───────────────┴──────────────────┘
+```
 
 Additionally a `duration` column would be present based on the time it took the check to run (this is gleaned from the sensu event data).
 

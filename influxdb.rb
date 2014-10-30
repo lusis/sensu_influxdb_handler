@@ -26,8 +26,10 @@ module Sensu::Extension
 
     def run(event_data)
       data = parse_event(event_data)
-      points = Array.new()
+      values = Array.new()
+      metrics = Array.new()
 
+      values.push(data["timestamp"].to_i, data["host"])
       data["output"].split(/\n/).each do |line|
         key, value, time = line.split(/\s+/)
 
@@ -37,14 +39,15 @@ module Sensu::Extension
           key.gsub!(/^.*#{@settings['influxdb']['strip_metric']}\.(.*$)/, '\1')
         end
 
+        metrics.push(key)
         # TODO: Try and sanitise the time
-        points.push([time.to_i, data["host"], key, value])
+        values.push(value)
       end
 
       body = [{
         "name" => data["series"],
-        "columns" => ["time", "host", "metric", "value"],
-        "points" => points
+        "columns" => ["time", "host"].concat(metrics),
+        "points" => [values]
       }]
 
       settings = parse_settings()
@@ -87,6 +90,9 @@ module Sensu::Extension
 
       def slice_host(slice, prefix)
         prefix.chars().zip(slice.chars()).each do | char1, char2 |
+          if char1 != char2
+            break
+          end
           slice.slice!(char1)
         end
         if slice.chars.first == "."
