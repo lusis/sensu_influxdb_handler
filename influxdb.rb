@@ -96,7 +96,7 @@ module Sensu::Extension
           slice.slice!(char1)
         end
         if slice.chars.first == "."
-          slice.slice!(char1)
+          slice.slice!(".")
         end
         return slice
       end
