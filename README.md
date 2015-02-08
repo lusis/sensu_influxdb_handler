@@ -1,5 +1,5 @@
 # Requirements
-`influxdb` ruby gem
+`influxdb` and `oj` ruby gem
 
 # Usage
 The configuration options are pretty straight forward. Note that the files are called `influx` not `influxdb`. 
