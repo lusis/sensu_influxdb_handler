@@ -46,6 +46,24 @@ Just drop the file in `/etc/sensu/extensions` and add it to your `metrics` confi
     "metrics": {
       "type": "set",
       "handlers": [ "debug", "influxdb"]
+      }
+    }
+  }
+}
+```
+In the check config, an optional `influxdb` section can be added, containing a `database` option. If specified, this overrides the default `database` option in the handler config. This allows events to be written to different influxdb databases on a check-by-check basis.
+
+## Example check config (`/etc/sensu/conf.d/check_foo.json`)
+
+```json
+{
+  "checks": {
+    "foo": {
+      "command": "check-foo",
+      "handlers": ["metrics"],
+      "influxdb": {
+        "database": "name"
+      }
     }
   }
 }

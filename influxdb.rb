@@ -51,8 +51,9 @@ module Sensu::Extension
       }]
 
       settings = parse_settings()
+      database = data["influxdb"]["database"] || settings["database"]
 
-      EventMachine::HttpRequest.new("http://#{ settings["host"] }:#{ settings["port"] }/db/#{ settings["database"] }/series?u=#{ settings["user"] }&p=#{ settings["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
+      EventMachine::HttpRequest.new("http://#{ settings["host"] }:#{ settings["port"] }/db/#{ database }/series?u=#{ settings["user"] }&p=#{ settings["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
     end
 
     private
@@ -60,6 +61,7 @@ module Sensu::Extension
         begin
           event = JSON.parse(event_data)
           data = {
+            "database" => event["check"]["influxdb"]["database"],
             "duration" => event["check"]["duration"],
             "host" => event["client"]["name"],
             "output" => event["check"]["output"],
