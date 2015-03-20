@@ -79,12 +79,13 @@ In the check config, an optional `influxdb` section can be added, containing a `
     "user": "stats",
     "password": "stats",
     "database": "stats",
+    "ssl_enable": false,
     "strip_metric": "somevalue"
   }
 }
 ```
 
-Host, port, user, password and database are pretty straight forward. `strip_metric` however might not be. This is used to "clean up" the data sent to influxdb. Normally everything sent to handlers is akin to the `graphite`/`stats` style:
+Host, port, user, password and database are pretty straight forward. If `ssl_enable` is set to true, the connection to the influxdb server will be made using https instead of http. `strip_metric` however might not be. This is used to "clean up" the data sent to influxdb. Normally everything sent to handlers is akin to the `graphite`/`stats` style:
 
 	something.host.metrictype.foo.bar
 

@@ -53,7 +53,12 @@ module Sensu::Extension
       settings = parse_settings()
       database = data["influxdb"]["database"] || settings["database"]
 
-      EventMachine::HttpRequest.new("http://#{ settings["host"] }:#{ settings["port"] }/db/#{ database }/series?u=#{ settings["user"] }&p=#{ settings["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
+      protocol = "http"
+      if settings["ssl_enable"]
+        protocol = "https"
+      end
+
+      EventMachine::HttpRequest.new("#{ protocol }://#{ settings["host"] }:#{ settings["port"] }/db/#{ database }/series?u=#{ settings["user"] }&p=#{ settings["password"] }"i, em_options).post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
     end
 
     private
@@ -80,6 +85,7 @@ module Sensu::Extension
             "host" => @settings["influxdb"]["host"],
             "password" => @settings["influxdb"]["password"],
             "port" => @settings["influxdb"]["port"],
+	    "ssl_enable" => @settings["influxdb"]["ssl_enable"],
             "strip_metric" => @settings["influxdb"]["strip_metric"],
             "timeout" => @settings["influxdb"]["timeout"],
             "user" => @settings["influxdb"]["user"]
