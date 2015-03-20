@@ -71,6 +71,7 @@ module Sensu::Extension
         rescue => e
           puts "Failed to parse event data"
         end
+        return data
       end
 
       def parse_settings()
