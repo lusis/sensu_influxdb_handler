@@ -1,5 +1,5 @@
 require "rubygems" if RUBY_VERSION < '1.9.0'
-require "em-http"
+require "em-http-request"
 require "eventmachine"
 require "json"
 
@@ -26,10 +26,6 @@ module Sensu::Extension
 
     def run(event_data)
       data = parse_event(event_data)
-      values = Array.new()
-      metrics = Array.new()
-
-      values.push(data["timestamp"].to_i, data["host"])
       data["output"].split(/\n/).each do |line|
         key, value, time = line.split(/\s+/)
 
@@ -39,26 +35,23 @@ module Sensu::Extension
           key.gsub!(/^.*#{@settings['influxdb']['strip_metric']}\.(.*$)/, '\1')
         end
 
-        metrics.push(key)
-        # TODO: Try and sanitise the time
-        values.push(value)
+        body = [{
+          "name" => key.gsub!('-',''),
+          "columns" => ["time", "value"],
+          "points" => [[time.to_f, value.to_f]]
+        }]
+
+        settings = parse_settings()
+        database = data["database"]
+  
+        protocol = "http"
+        if settings["ssl_enable"]
+          protocol = "https"
+        end
+        
+        EventMachine::HttpRequest.new("#{ protocol }://#{ settings["host"] }:#{ settings["port"] }/db/#{ database }/series?u=#{ settings["user"] }&p=#{ settings["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
+
       end
-
-      body = [{
-        "name" => data["series"],
-        "columns" => ["time", "host"].concat(metrics),
-        "points" => [values]
-      }]
-
-      settings = parse_settings()
-      database = data["influxdb"]["database"] || settings["database"]
-
-      protocol = "http"
-      if settings["ssl_enable"]
-        protocol = "https"
-      end
-
-      EventMachine::HttpRequest.new("#{ protocol }://#{ settings["host"] }:#{ settings["port"] }/db/#{ database }/series?u=#{ settings["user"] }&p=#{ settings["password"] }"i, em_options).post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
     end
 
     private
@@ -66,7 +59,7 @@ module Sensu::Extension
         begin
           event = JSON.parse(event_data)
           data = {
-            "database" => event["check"]["influxdb"]["database"],
+            "database" => (event["database"].nil? ? @settings['influxdb']['database'] : event["database"]),
             "duration" => event["check"]["duration"],
             "host" => event["client"]["name"],
             "output" => event["check"]["output"],
@@ -74,7 +67,7 @@ module Sensu::Extension
             "timestamp" => event["check"]["issued"]
           }
         rescue => e
-          puts "Failed to parse event data"
+          puts " Failed to parse event data: #{e} "
         end
         return data
       end
@@ -86,13 +79,13 @@ module Sensu::Extension
             "host" => @settings["influxdb"]["host"],
             "password" => @settings["influxdb"]["password"],
             "port" => @settings["influxdb"]["port"],
-	    "ssl_enable" => @settings["influxdb"]["ssl_enable"],
+            "ssl_enable" => @settings["influxdb"]["ssl_enable"],
             "strip_metric" => @settings["influxdb"]["strip_metric"],
             "timeout" => @settings["influxdb"]["timeout"],
             "user" => @settings["influxdb"]["user"]
           }
         rescue => e
-          puts "Failed to parse InfluxDB settings"
+          puts "Failed to parse InfluxDB settings #{e} "
         end
         return settings
       end
