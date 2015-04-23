@@ -1,5 +1,5 @@
 require "rubygems" if RUBY_VERSION < '1.9.0'
-require "em-http"
+require "em-http-request"
 require "eventmachine"
 require "json"
 
@@ -51,14 +51,14 @@ module Sensu::Extension
       }]
 
       settings = parse_settings()
-      database = data["influxdb"]["database"] || settings["database"]
+      database = data["database"]
 
       protocol = "http"
       if settings["ssl_enable"]
         protocol = "https"
       end
 
-      EventMachine::HttpRequest.new("#{ protocol }://#{ settings["host"] }:#{ settings["port"] }/db/#{ database }/series?u=#{ settings["user"] }&p=#{ settings["password"] }"i, em_options).post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
+      EventMachine::HttpRequest.new("#{ protocol }://#{ settings["host"] }:#{ settings["port"] }/db/#{ database }/series?u=#{ settings["user"] }&p=#{ settings["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
     end
 
     private
@@ -66,7 +66,7 @@ module Sensu::Extension
         begin
           event = JSON.parse(event_data)
           data = {
-            "database" => event["check"]["influxdb"]["database"],
+            "database" => (event["database"].nil? ? @settings['influxdb']['database'] : event["database"]),
             "duration" => event["check"]["duration"],
             "host" => event["client"]["name"],
             "output" => event["check"]["output"],
@@ -74,7 +74,7 @@ module Sensu::Extension
             "timestamp" => event["check"]["issued"]
           }
         rescue => e
-          puts "Failed to parse event data"
+          puts " Failed to parse event data: #{e} "
         end
         return data
       end
@@ -86,13 +86,13 @@ module Sensu::Extension
             "host" => @settings["influxdb"]["host"],
             "password" => @settings["influxdb"]["password"],
             "port" => @settings["influxdb"]["port"],
-	    "ssl_enable" => @settings["influxdb"]["ssl_enable"],
+	        "ssl_enable" => @settings["influxdb"]["ssl_enable"],
             "strip_metric" => @settings["influxdb"]["strip_metric"],
             "timeout" => @settings["influxdb"]["timeout"],
             "user" => @settings["influxdb"]["user"]
           }
         rescue => e
-          puts "Failed to parse InfluxDB settings"
+          puts "Failed to parse InfluxDB settings #{e} "
         end
         return settings
       end
