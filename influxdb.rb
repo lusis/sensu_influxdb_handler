@@ -36,7 +36,7 @@ module Sensu::Extension
         end
 
         body = [{
-          "name" => key.gsub!('-',''),
+          "name" => key.gsub('-',''),
           "columns" => ["time", "value"],
           "points" => [[time.to_f, value.to_f]]
         }]
