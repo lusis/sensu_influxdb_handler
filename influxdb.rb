@@ -52,6 +52,11 @@ module Sensu::Extension
         EventMachine::HttpRequest.new("#{ protocol }://#{ settings["host"] }:#{ settings["port"] }/db/#{ database }/series?u=#{ settings["user"] }&p=#{ settings["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
 
       end
+      yield("", 0)
+    end
+
+    def stop
+      yield
     end
 
     private
