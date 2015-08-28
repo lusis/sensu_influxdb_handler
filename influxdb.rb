@@ -26,13 +26,15 @@ module Sensu::Extension
 
     def run(event_data)
       data = parse_event(event_data)
+      conf = parse_settings()
+
       data["output"].split(/\n/).each do |line|
         key, value, time = line.split(/\s+/)
 
-        if @settings["influxdb"]["strip_metric"] == "host"
+        if conf["strip_metric"] == "host"
           key = slice_host(key, data["host"])
-        elsif @settings["influxdb"]["strip_metric"]
-          key.gsub!(/^.*#{@settings['influxdb']['strip_metric']}\.(.*$)/, '\1')
+        elsif conf["strip_metric"]
+          key.gsub!(/^.*#{conf['strip_metric']}\.(.*$)/, '\1')
         end
 
         body = [{
@@ -41,7 +43,6 @@ module Sensu::Extension
           "points" => [[time.to_f, value.to_f]]
         }]
 
-        settings = parse_settings()
         database = data["database"]
   
         protocol = "http"
@@ -49,7 +50,7 @@ module Sensu::Extension
           protocol = "https"
         end
         
-        EventMachine::HttpRequest.new("#{ protocol }://#{ settings["host"] }:#{ settings["port"] }/db/#{ database }/series?u=#{ settings["user"] }&p=#{ settings["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
+        EventMachine::HttpRequest.new("#{ protocol }://#{ conf["host"] }:#{ conf["port"] }/db/#{ database }/series?u=#{ conf["user"] }&p=#{ conf["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
 
       end
       yield("", 0)
