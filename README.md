@@ -1,5 +1,9 @@
 # Requirements
-`influxdb` ruby gem
+
+This extension uses InfluxDB [Line Protocol](https://influxdb.com/docs/v0.9/write_protocols/line.html) over HTTP to send metrics.
+
+Since Sensu already uses [eventmachine](https://github.com/eventmachine/eventmachine), you just have to ensure that em-http-request gem is present inside Sensu's embedded Ruby :
+* `em-http-request` ruby gem
 
 # Usage
 The configuration options are pretty straight forward.
