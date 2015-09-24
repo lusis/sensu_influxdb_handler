@@ -57,7 +57,7 @@ module Sensu::Extension
     end
 
     def stop
-      yield
+      true
     end
 
     private
