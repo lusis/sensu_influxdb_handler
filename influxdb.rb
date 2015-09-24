@@ -38,7 +38,7 @@ module Sensu::Extension
         end
 
         body = [{
-          "name" => key.gsub('-',''),
+          "name" => key,
           "columns" => ["time", "value"],
           "points" => [[time.to_f, value.to_f]]
         }]
@@ -50,7 +50,7 @@ module Sensu::Extension
           protocol = "https"
         end
         
-        EventMachine::HttpRequest.new("#{ protocol }://#{ conf["host"] }:#{ conf["port"] }/db/#{ database }/series?u=#{ conf["user"] }&p=#{ conf["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
+        EventMachine::HttpRequest.new("#{ protocol }://#{ conf["host"] }:#{ conf["port"] }/db/#{ database }/series?time_precision=#{ data["time_precision"] }&u=#{ conf["user"] }&p=#{ conf["password"] }").post :head => { "content-type" => "application/x-www-form-urlencoded" }, :body => body.to_json
 
       end
       yield("", 0)
@@ -70,7 +70,8 @@ module Sensu::Extension
             "host" => event["client"]["name"],
             "output" => event["check"]["output"],
             "series" => event["check"]["name"],
-            "timestamp" => event["check"]["issued"]
+            "timestamp" => event["check"]["issued"],
+            "time_precision" => event["check"].fetch("time_precision", "s") # n, u, ms, s, m, and h (default community plugins use standard epoch date)
           }
         rescue => e
           puts " Failed to parse event data: #{e} "
