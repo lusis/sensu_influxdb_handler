@@ -108,14 +108,11 @@ module Sensu::Extension
     end
 
     def slice_host(slice, prefix)
-      prefix.chars.zip(slice.chars).each do |char1, char2|
-        if char1 != char2
-          break
+      prefix.split(".").each do |token|
+        dot_token = token + "."
+        if slice.start_with?(dot_token)
+          slice.slice!(dot_token)
         end
-        slice.slice!(char1)
-      end
-      if slice.chars.first == '.'
-        slice.slice!('.')
       end
       return slice
     end
